@@ -90,13 +90,15 @@
 
     // This function now calls your Node.js backend instead of Google Scripts
     async function fetchData() {
-      try {
-        const response = await fetch('/api/data');
-        const data = await response.json();
-        dashboardData = data;
-        renderDashboard();
-      } catch (error) {
-        document.getElementById('app').innerHTML = `<h2 style="color:white; text-align:center;">Error connecting to server</h2>`;
+  try {
+    const response = await fetch('/api/data'); // Use relative path
+    const data = await response.json();
+    dashboardData = data;
+    renderDashboard();
+  } catch (error) {
+    console.error("Connection Error:", error);
+    document.getElementById('app').innerHTML = `<h2 style="color:white;">Error connecting to server</h2>`;
+  }
       }
     }
 

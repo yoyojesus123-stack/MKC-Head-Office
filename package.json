@@ -1,7 +1,7 @@
 {
   "name": "mkc-dashboard",
   "version": "1.0.0",
-  "description": "MKC Developmental Commission Dashboard",
+  "description": "MKC Dashboard for Render",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -1,48 +1,36 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-// Enable JSON parsing
-app.use(express.json());
+// Render uses port 10000 by default, but we should use process.env.PORT
+const PORT = process.env.PORT || 10000;
 
-// Serve static files from the "public" folder
+// Step 1: Tell express where to find your HTML/CSS/JS files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API Endpoint to provide dashboard data
+// Step 2: Create the API data endpoint
 app.get('/api/data', (req, res) => {
-  try {
-    // This is sample data. Later we will connect this to Google Sheets.
-    const data = {
-      success: true,
-      employees: { total: 120, headOffice: 50, branchOffice: 70 },
-      projects: {
-        total: 15,
-        list: [
-          { name: "Clean Water Initiative", region: "Oromia", status: "Active" },
-          { name: "Rural School Build", region: "Amhara", status: "On The Way" },
-          { name: "Emergency Health Support", region: "SNNPR", status: "Expired" }
-        ]
-      },
-      regions: [
-        { name: "Oromia", count: 5 },
-        { name: "Amhara", count: 4 },
-        { name: "SNNPR", count: 3 },
-        { name: "Tigray", count: 3 }
-      ],
-      lastUpdated: new Date().toLocaleString()
-    };
-    res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Internal Server Error" });
-  }
+  res.json({
+    success: true,
+    employees: { total: 120 },
+    projects: {
+      total: 5,
+      list: [
+        { name: "Water Project", region: "Oromia", status: "Active" },
+        { name: "School Construction", region: "Amhara", status: "Active" },
+        { name: "Medical Support", region: "SNNPR", status: "On Progress" }
+      ]
+    },
+    lastUpdated: new Date().toLocaleString()
+  });
 });
 
-// Serve the HTML file for any other route
+// Step 3: Serve the index.html for any other URL
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
+// Step 4: Start the server on host 0.0.0.0
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });

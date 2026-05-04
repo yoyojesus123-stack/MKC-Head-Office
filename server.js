@@ -2,35 +2,26 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-// Render uses port 10000 by default, but we should use process.env.PORT
+// Render የሚሰጠውን Port መጠቀም (ካልሆነ 10000)
 const PORT = process.env.PORT || 10000;
 
-// Step 1: Tell express where to find your HTML/CSS/JS files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Step 2: Create the API data endpoint
 app.get('/api/data', (req, res) => {
   res.json({
     success: true,
     employees: { total: 120 },
-    projects: {
-      total: 5,
-      list: [
-        { name: "Water Project", region: "Oromia", status: "Active" },
-        { name: "School Construction", region: "Amhara", status: "Active" },
-        { name: "Medical Support", region: "SNNPR", status: "On Progress" }
-      ]
-    },
+    projects: { total: 5, list: [{ name: "Sample Project", region: "Addis Ababa", status: "Active" }] },
     lastUpdated: new Date().toLocaleString()
   });
 });
 
-// Step 3: Serve the index.html for any other URL
+// ማንኛውንም ሌላ ጥያቄ ወደ index.html እንዲሄድ ማድረግ
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Step 4: Start the server on host 0.0.0.0
+// መስመሩ እንዲህ መሆኑን አረጋግጥ
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });

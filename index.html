@@ -1,96 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MKC Commission Dashboard</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; color: #333; }
-    .navbar { background: #1a237e; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .stat-title { font-size: 14px; color: #777; text-transform: uppercase; }
-    .stat-value { font-size: 32px; font-weight: bold; color: #1a237e; }
-    .table-container { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-    th { background: #f8f9fa; color: #1a237e; }
-    .status-badge { padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
-    .active-bg { background: #e8f5e9; color: #2e7d32; }
-    .error-msg { color: #d32f2f; text-align: center; padding: 50px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MKC Commission Dashboard</title>
+    <style>
+        /* CSS Styling */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #1a237e, #0d1b4a); 
+            min-height: 100vh; 
+            color: #333; 
+        }
+        
+        .navbar { 
+            background: white; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            padding: 15px 20px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100;
+        }
+        
+        .nav-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        
+        .logo h2 { color: #1a237e; font-size: 20px; }
+        .logo p { color: #666; font-size: 12px; text-transform: uppercase; }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+        }
+
+        /* Dashboard Stats Cards */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
+        }
+
+        .stat-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 25px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            border-left: 5px solid #1a237e; 
+        }
+
+        .stat-title { color: #7f8c8d; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .stat-value { color: #2c3e50; font-size: 35px; font-weight: 800; margin-top: 10px; }
+
+        /* Data Table */
+        .table-container { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 25px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            overflow-x: auto; 
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8f9fa; color: #1a237e; padding: 15px; text-align: left; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        
+        .status-badge { 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            font-weight: bold; 
+            background: #e6fffa; 
+            color: #319795; 
+        }
+
+        /* Error and Loading States */
+        #status-message { text-align: center; padding: 50px; color: white; }
+        .retry-btn { 
+            background: #4caf50; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-top: 15px; 
+        }
+    </style>
 </head>
 <body>
 
-  <div class="navbar">
-    <h2>MKC Commission Dashboard</h2>
-    <button onclick="fetchData()" style="padding: 8px 15px; cursor: pointer;">Refresh</button>
-  </div>
-
-  <div class="container" id="app">
-    <div style="text-align:center; padding:50px;">Loading data...</div>
-  </div>
-
-  <script>
-    async function fetchData() {
-      const app = document.getElementById('app');
-      try {
-        const response = await fetch('/api/data');
-        if (!response.ok) throw new Error('Server issues');
-        
-        const data = await response.json();
-        renderDashboard(data);
-      } catch (error) {
-        app.innerHTML = `
-          <div class="error-msg">
-            <h2>⚠️ Connection Error</h2>
-            <p>Could not reach the server. Please check if the Render service is running.</p>
-            <button onclick="fetchData()" style="margin-top:15px; padding:10px 20px;">Try Again</button>
-          </div>`;
-      }
-    }
-
-    function renderDashboard(data) {
-      const app = document.getElementById('app');
-      app.innerHTML = `
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-title">Employees</div>
-            <div class="stat-value">${data.employees.total}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-title">Projects</div>
-            <div class="stat-value">${data.projects.total}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-title">Last Update</div>
-            <div style="font-size:16px;">${data.lastUpdated}</div>
-          </div>
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h2>MKC DEVELOPMENTAL COMMISSION</h2>
+                <p>Jesus Is Lord</p>
+            </div>
+            <button class="retry-btn" onclick="fetchData()">Refresh</button>
         </div>
+    </div>
 
-        <div class="table-container">
-          <h3>Current Projects</h3>
-          <table>
-            <thead>
-              <tr><th>Project Name</th><th>Region</th><th>Status</th></tr>
-            </thead>
-            <tbody>
-              ${data.projects.list.map(p => `
-                <tr>
-                  <td><strong>${p.name}</strong></td>
-                  <td>${p.region}</td>
-                  <td><span class="status-badge active-bg">${p.status}</span></td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+    <div class="container" id="main-content">
+        <div id="status-message">
+            <h2>Loading Dashboard Data...</h2>
         </div>
-      `;
-    }
+    </div>
 
-    window.onload = fetchData;
-  </script>
+    <script>
+        async function fetchData() {
+            const container = document.getElementById('main-content');
+            
+            try {
+                // Fetch data using the current website URL
+                const apiUrl = `${window.location.origin}/api/data`;
+                const response = await fetch(apiUrl);
+                
+                if (!response.ok) throw new Error('Server issues');
+                
+                const data = await response.json();
+                renderDashboard(data);
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                container.innerHTML = `
+                    <div id="status-message">
+                        <h2 style="color: #ff5252;">⚠️ Connection Error</h2>
+                        <p>The dashboard could not connect to the server.</p>
+                        <p style="font-size: 13px; margin-top: 10px;">Make sure your Render service is "Live".</p>
+                        <button class="retry-btn" onclick="fetchData()">Try Again</button>
+                    </div>`;
+            }
+        }
+
+        function renderDashboard(data) {
+            const container = document.getElementById('main-content');
+            container.innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-title">Total Employees</div>
+                        <div class="stat-value">${data.employees.total}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Active Projects</div>
+                        <div class="stat-value">${data.projects.total}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Last Updated</div>
+                        <div style="font-size: 18px; margin-top: 10px; font-weight: bold;">${data.lastUpdated}</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <h3 style="color: #1a237e;">Project Overview</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Region</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.projects.list.map(p => `
+                                <tr>
+                                    <td><strong>${p.name}</strong></td>
+                                    <td>${p.region}</td>
+                                    <td><span class="status-badge">${p.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Start loading data when the page opens
+        window.onload = fetchData;
+    </script>
 </body>
 </html>
